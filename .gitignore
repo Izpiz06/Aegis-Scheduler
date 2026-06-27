@@ -1,1 +1,73 @@
-/target
+# ========================
+# Rust
+# ========================
+/target/
+**/target/
+**/*.rs.bk
+*.pdb
+
+# ========================
+# Python
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+.venv/
+venv/
+env/
+.env
+.python-version
+
+# ========================
+# IDE / Editors
+# ========================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# ========================
+# OS
+# ========================
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ========================
+# Docker
+# ========================
+docker-compose.override.yml
+
+# ========================
+# Database
+# ========================
+*.sql.bak
+*.dump
+
+# ========================
+# Logs
+# ========================
+*.log
+logs/
+
+# ========================
+# Environment / Secrets
+# ========================
+.env
+.env.*
+!.env.example
+
+# ========================
+# Miscellaneous
+# ========================
+*.bak
+*.tmp
+*.temp

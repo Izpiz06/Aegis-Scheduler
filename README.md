@@ -1,405 +1,331 @@
-# Aegis
+<div align="center">
 
-> **An AI-Augmented Workload Intelligence Platform for HPC and AI Clusters**
+# 🛡️ Aegis
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](#license)
-![Status](https://img.shields.io/badge/status-active%20development-orange)
-![Language](https://img.shields.io/badge/language-Rust-orange)
-![AI](https://img.shields.io/badge/AI-Augmented-blue)
+### An AI-Augmented Workload Intelligence Platform for HPC and AI Clusters
 
----
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=for-the-badge)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Active%20Development-orange?style=for-the-badge)](#-current-status)
+[![Rust](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org/)
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
-## Overview
+<br/>
 
-Aegis is an open-source workload intelligence platform designed for High Performance Computing (HPC) and Artificial Intelligence (AI) infrastructure.
+**Deterministic Scheduling · Predictive Analytics · Explainable AI · Interactive Visualization**
 
-Rather than attempting to replace traditional schedulers, Aegis introduces an intelligent layer that makes workload scheduling **predictable, explainable, and data-driven**.
+[Overview](#-overview) •
+[Features](#-key-features) •
+[Architecture](#-architecture) •
+[Tech Stack](#-technology-stack) •
+[Roadmap](#-development-roadmap) •
+[Contributing](#-contributing)
 
-Modern schedulers excel at allocating computational resources, but they provide limited insight into why scheduling decisions occur, when workloads will begin execution, whether resource requests are optimal, or how failures can be prevented before execution.
-
-Aegis combines deterministic scheduling with predictive analytics, machine learning, retrieval-augmented generation (RAG), and interactive visualization to improve both user experience and infrastructure utilization.
-
----
-
-# Problem Statement
-
-Current HPC workload managers primarily focus on execution and resource allocation.
-
-However, users and administrators continue to face several challenges:
-
-* Queue waiting times are unpredictable.
-* Runtime estimates are unreliable.
-* Resource requests are frequently overestimated.
-* Scheduler decisions lack transparency.
-* Diagnosing failed workloads requires manual log analysis.
-* Cluster congestion cannot be easily forecasted.
-* Existing monitoring tools are fragmented across multiple platforms.
-
-These challenges become increasingly significant as AI workloads grow in scale and complexity.
-
-Aegis aims to bridge this gap by transforming workload management into an intelligent, explainable, and predictive platform.
+</div>
 
 ---
 
-# Vision
+## 📖 Overview
 
-The vision of Aegis is to become an intelligent operating platform for AI and HPC workloads.
+**Aegis** is an open-source workload intelligence platform designed for High Performance Computing (HPC) and Artificial Intelligence (AI) infrastructure.
 
-Instead of simply scheduling jobs, Aegis assists users throughout the complete workload lifecycle by answering questions such as:
+Rather than replacing traditional schedulers, Aegis introduces an intelligent layer that makes workload scheduling **predictable, explainable, and data-driven**.
 
-* Why is my job waiting?
-* When will it begin execution?
-* How long will it run?
-* Am I requesting too many resources?
-* Will my job likely fail?
-* What happens if I modify my resource request?
-* How can cluster utilization be improved?
-
-Artificial intelligence is used to augment scheduling—not replace it.
-
-Scheduling decisions remain deterministic, while AI provides prediction, recommendation, diagnostics, and explainability.
+Modern schedulers excel at resource allocation — but they provide limited insight into *why* scheduling decisions occur, *when* workloads will begin, *whether* resource requests are optimal, or *how* failures can be prevented. Aegis combines deterministic scheduling with predictive analytics, machine learning, retrieval-augmented generation (RAG), and interactive visualization to bridge that gap.
 
 ---
 
-# Key Features
+## ❓ Problem Statement
 
-## Core Scheduling
+Current HPC workload managers primarily focus on execution and resource allocation. Users and administrators continue to face significant challenges:
 
-* First Come First Serve (FCFS)
-* Priority Scheduling *(planned)*
-* Fair Share Scheduling *(planned)*
-* Backfilling *(planned)*
-* GPU-aware Scheduling *(planned)*
+| Challenge | Impact |
+|:---|:---|
+| Unpredictable queue wait times | Users cannot plan workflows effectively |
+| Unreliable runtime estimates | Inaccurate scheduling and resource waste |
+| Overestimated resource requests | Reduced cluster throughput |
+| Opaque scheduler decisions | Difficult troubleshooting and debugging |
+| Manual log analysis for failures | Slow incident response |
+| No congestion forecasting | Reactive instead of proactive management |
+| Fragmented monitoring tools | Scattered observability across platforms |
 
----
-
-## AI Intelligence
-
-* Runtime Prediction
-* Queue Waiting Time Prediction
-* Failure Prediction
-* Resource Recommendation
-* Workload Classification
-* Congestion Forecasting
+These challenges become increasingly significant as AI workloads grow in scale and complexity. Aegis transforms workload management into an **intelligent, explainable, and predictive platform**.
 
 ---
 
-## Explainability
+## 🔭 Vision
 
-Every scheduling decision can be inspected.
+Aegis aims to become an **intelligent operating platform** for AI and HPC workloads. Instead of simply scheduling jobs, Aegis assists users throughout the complete workload lifecycle:
 
-Example:
+> *"Why is my job waiting? When will it start? How long will it run? Am I requesting too many resources? Will my job likely fail?"*
+
+**AI augments scheduling — it does not replace it.** Scheduling decisions remain deterministic, while AI provides prediction, recommendation, diagnostics, and explainability.
+
+---
+
+## ✨ Key Features
+
+### 🗓️ Core Scheduling
+
+| Algorithm | Status |
+|:---|:---:|
+| First Come First Serve (FCFS) | ✅ Implemented |
+| Priority Scheduling | 🔜 Planned |
+| Fair Share Scheduling | 🔜 Planned |
+| Backfilling | 🔜 Planned |
+| GPU-aware Scheduling | 🔜 Planned |
+
+### 🧠 AI Intelligence
+
+- **Runtime Prediction** — Estimate job completion time before execution
+- **Queue Wait Prediction** — Forecast how long a job will wait in queue
+- **Failure Prediction** — Flag jobs likely to fail before they run
+- **Resource Recommendation** — Suggest optimal CPU, memory, and GPU requests
+- **Workload Classification** — Categorize jobs by behavior patterns
+- **Congestion Forecasting** — Predict upcoming cluster bottlenecks
+
+### 🔍 Explainability
+
+Every scheduling decision can be inspected with transparent reasoning:
 
 ```
 Job Status: Pending
 
 Reason:
-• Waiting for available GPU resources
-• Highest priority queue currently occupied
-• Estimated wait time: 14 minutes
+  • Waiting for available GPU resources
+  • Highest priority queue currently occupied
+  • Estimated wait time: 14 minutes
+```
+
+### 🤖 AI Copilot (RAG)
+
+A retrieval-augmented assistant that answers operational questions using real evidence — not hallucinated responses:
+
+> **User:** *"Why did my PyTorch training fail?"*
+>
+> The copilot retrieves relevant context from historical jobs, scheduler logs, execution logs, cluster metrics, documentation, and previous failures before producing an explanation.
+
+### 📊 Interactive Dashboard *(Planned)*
+
+- Live Queue Monitoring &nbsp;·&nbsp; GPU Utilization &nbsp;·&nbsp; Resource Heatmaps
+- Timeline Visualization &nbsp;·&nbsp; Historical Analytics &nbsp;·&nbsp; Cluster Health
+- Job Lifecycle Tracking
+
+---
+
+## 🏗️ Architecture
+
+```
+                          ┌──────────┐
+                          │   User   │
+                          └────┬─────┘
+                               │
+                          ┌────▼─────┐
+                          │   Web    │
+                          │Dashboard │
+                          └────┬─────┘
+                               │
+                     REST / WebSocket API
+                               │
+                    ┌──────────▼──────────┐
+                    │  Aegis Backend      │
+                    │      (Rust)         │
+                    └──┬───────┬───────┬──┘
+                       │       │       │
+                 ┌─────▼──┐ ┌─▼────┐ ┌▼─────────┐
+                 │Scheduler│ │Exec- │ │Monitoring │
+                 │         │ │utor  │ │           │
+                 └────┬────┘ └──────┘ └───────────┘
+                      │
+                 ┌────▼────┐
+                 │Job Queue│
+                 └────┬────┘
+                      │
+                 ┌────▼──────┐
+                 │PostgreSQL │
+                 └────┬──────┘
+                      │
+        ┌─────────────▼─────────────┐
+        │  AI Intelligence Services │
+        │         (Python)          │
+        ├───────────────────────────┤
+        │ • Runtime Prediction      │
+        │ • Queue Prediction        │
+        │ • Failure Prediction      │
+        │ • Resource Recommendation │
+        │ • AI Copilot (RAG)        │
+        └───────────────────────────┘
 ```
 
 ---
 
-## AI Copilot (RAG)
-
-A retrieval-augmented assistant capable of answering operational questions using:
-
-* Historical jobs
-* Scheduler logs
-* Execution logs
-* Cluster metrics
-* Documentation
-* Previous failures
-
-Example:
-
-> Why did my PyTorch training fail?
-
-Instead of generating a generic response, the assistant retrieves relevant evidence before producing an explanation.
-
----
-
-## Interactive Dashboard *(Planned)*
-
-* Live Queue Monitoring
-* GPU Utilization
-* Resource Heatmaps
-* Timeline Visualization
-* Historical Analytics
-* Cluster Health
-* Job Lifecycle Tracking
-
----
-
-# Architecture
+## 📁 Repository Structure
 
 ```
-                        User
-                          │
-                          ▼
-                 Web Dashboard
-                          │
-              REST / WebSocket API
-                          │
-                          ▼
-                 Aegis Backend (Rust)
-                          │
-        ┌─────────────────┼─────────────────┐
-        │                 │                 │
-        ▼                 ▼                 ▼
-   Scheduler        Executor         Monitoring
-        │
-        ▼
-     Job Queue
-        │
-        ▼
-    PostgreSQL
-        │
-        ▼
-AI Intelligence Services (Python)
-        │
-        ├──────── Runtime Prediction
-        ├──────── Queue Prediction
-        ├──────── Failure Prediction
-        ├──────── Resource Recommendation
-        └──────── AI Copilot (RAG)
-```
-
----
-
-# Repository Structure
-
-```
-aegis/
-
-├── backend/
-├── frontend/
-├── ai/
-├── docs/
-├── database/
-├── monitoring/
-├── deployments/
-├── examples/
-├── scripts/
-├── tests/
+Aegis-Scheduler/
 │
-├── README.md
-├── ROADMAP.md
-├── LICENSE
-└── docker-compose.yml
+├── Aegis Core/              # Rust backend — scheduler, executor, queue, resources
+│   ├── src/
+│   │   ├── main.rs          # Application entry point
+│   │   ├── job.rs           # Job model and state machine
+│   │   ├── queue.rs         # Thread-safe job queue
+│   │   ├── executor.rs      # Job execution engine
+│   │   └── resources.rs     # Resource management
+│   └── Cargo.toml
+│
+├── Aegis AI/                # Python AI services — prediction, RAG, recommendations
+│   ├── src/
+│   └── requirements.txt
+│
+├── proto/                   # gRPC protocol definitions
+├── Cargo.toml               # Workspace configuration
+└── README.md
 ```
 
 ---
 
-# Technology Stack
+## 🛠️ Technology Stack
 
-## Backend
+<table>
+<tr>
+<td valign="top" width="50%">
 
-* Rust
-* Tokio
-* Tonic (gRPC)
-* PostgreSQL
-* SQLx
-* Serde
-* Tracing
+### Backend
+| Technology | Purpose |
+|:---|:---|
+| **Rust** | Core platform language |
+| **Tokio** | Async runtime |
+| **Tonic** | gRPC framework |
+| **PostgreSQL** | Persistent storage |
+| **SQLx** | Async database driver |
+| **Serde** | Serialization |
+| **Tracing** | Structured logging |
 
----
+### AI & ML
+| Technology | Purpose |
+|:---|:---|
+| **Python** | AI services language |
+| **PyTorch** | Deep learning |
+| **Scikit-Learn** | Classical ML |
+| **XGBoost** | Gradient boosting |
+| **FastAPI** | AI service API |
+| **Sentence Transformers** | Embedding models |
 
-## Artificial Intelligence
+</td>
+<td valign="top" width="50%">
 
-* Python
-* PyTorch
-* Scikit-Learn
-* XGBoost
-* FastAPI
-* Sentence Transformers
+### RAG Pipeline
+| Technology | Purpose |
+|:---|:---|
+| **pgvector** | Vector similarity search |
+| **PostgreSQL** | Vector store backend |
+| **LangChain** | Orchestration *(optional)* |
+| **LlamaIndex** | Data indexing *(optional)* |
 
----
+### Frontend
+| Technology | Purpose |
+|:---|:---|
+| **Next.js** | React framework |
+| **TypeScript** | Type-safe frontend |
+| **Tailwind CSS** | Utility-first styling |
+| **Apache ECharts** | Data visualization |
 
-## Retrieval-Augmented Generation
+### Infrastructure
+| Technology | Purpose |
+|:---|:---|
+| **Docker** | Containerization |
+| **Docker Compose** | Multi-service orchestration |
+| **Prometheus** | Metrics collection |
+| **Grafana** | Monitoring dashboards |
+| **NVIDIA NVML** | GPU telemetry |
 
-* pgvector
-* PostgreSQL
-* LangChain *(optional)*
-* LlamaIndex *(optional)*
-
----
-
-## Frontend
-
-* Next.js
-* React
-* TypeScript
-* Tailwind CSS
-* Apache ECharts
-
----
-
-## Infrastructure
-
-* Docker
-* Docker Compose
-* Prometheus
-* Grafana (Development)
-* NVIDIA NVML
-
----
-
-# Development Roadmap
-
-## Phase 1
-
-Core Scheduler Engine
-
-* Job Model
-* Queue Manager
-* Scheduler
-* Executor
-* State Machine
-* FCFS Scheduling
+</td>
+</tr>
+</table>
 
 ---
 
-## Phase 2
+## 🗺️ Development Roadmap
 
-Persistence
-
-* PostgreSQL
-* Repository Layer
-* Job History
-
----
-
-## Phase 3
-
-Monitoring
-
-* CPU Metrics
-* Memory Metrics
-* GPU Metrics
-* Cluster Health
+| Phase | Milestone | Key Deliverables | Status |
+|:---:|:---|:---|:---:|
+| **1** | Core Scheduler Engine | Job Model · Queue Manager · Scheduler · Executor · State Machine · FCFS | 🟢 In Progress |
+| **2** | Persistence | PostgreSQL · Repository Layer · Job History | ⬜ Planned |
+| **3** | Monitoring | CPU / Memory / GPU Metrics · Cluster Health | ⬜ Planned |
+| **4** | Dashboard | Interactive Web Interface · Live Queue · Job Monitoring · Analytics | ⬜ Planned |
+| **5** | Prediction Engine | Runtime · Queue · Failure Prediction · Resource Recommendation | ⬜ Planned |
+| **6** | Explainability Engine | Scheduling Explanations · Bottleneck Analysis · Decision Tracing | ⬜ Planned |
+| **7** | AI Copilot | RAG · Log Analysis · Documentation Search · Failure Diagnostics | ⬜ Planned |
+| **8** | Digital Twin | Cluster Simulation · What-if Scheduling · Capacity Planning · Policy Comparison | ⬜ Planned |
 
 ---
 
-## Phase 4
+## 🧭 Design Principles
 
-Dashboard
-
-* Interactive Web Interface
-* Live Queue
-* Job Monitoring
-* Analytics
-
----
-
-## Phase 5
-
-Prediction Engine
-
-* Runtime Prediction
-* Queue Prediction
-* Resource Recommendation
-* Failure Prediction
+| Principle | Description |
+|:---|:---|
+| **Deterministic Scheduling** | Scheduling outcomes are reproducible and predictable |
+| **AI-Assisted Decision Support** | Intelligence augments — never overrides — the scheduler |
+| **Modular Architecture** | Each component is independently deployable and testable |
+| **Thread Safety** | All shared state is protected by safe concurrency primitives |
+| **Strong Type Safety** | Leveraging Rust's type system to eliminate entire categories of bugs |
+| **Explainability by Design** | Every decision can be traced and inspected |
+| **Production-Oriented** | Built for real-world scale and reliability from day one |
+| **Extensibility** | Plugin-friendly interfaces for custom policies and algorithms |
 
 ---
 
-## Phase 6
+## 📌 Current Status
 
-Explainability Engine
+> **🚧 Active Development — Phase 1**
 
-* Scheduling Explanations
-* Resource Bottleneck Analysis
-* Decision Tracing
+The following foundational components have been implemented:
 
----
-
-## Phase 7
-
-AI Copilot
-
-* Retrieval-Augmented Generation
-* Log Analysis
-* Documentation Search
-* Failure Diagnostics
+- [x] Job representation and state model
+- [x] Thread-safe queue management
+- [x] Core scheduling engine (FCFS)
+- [x] Executor framework
+- [x] State machine for job lifecycle
+- [ ] Priority and fair-share scheduling
+- [ ] PostgreSQL persistence
+- [ ] AI prediction services
 
 ---
 
-## Phase 8
-
-Digital Twin
-
-* Cluster Simulation
-* What-if Scheduling
-* Capacity Planning
-* Policy Comparison
-
----
-
-# Design Principles
-
-Aegis is built around several engineering principles:
-
-* Deterministic scheduling
-* AI-assisted decision support
-* Modular architecture
-* Thread safety
-* Strong type safety
-* Explainability by design
-* Production-oriented engineering
-* Extensibility
-
----
-
-# Project Goals
-
-The long-term objective is to develop an intelligent workload management platform capable of:
-
-* Predicting workload behavior before execution.
-* Explaining scheduling decisions.
-* Optimizing infrastructure utilization.
-* Assisting users through AI-powered diagnostics.
-* Providing complete observability over cluster operations.
-
----
-
-# Current Status
-
-The project is currently under active development.
-
-Initial milestones include:
-
-* Job representation
-* Thread-safe queue management
-* Core scheduling engine
-* Executor
-* State management
-
----
-
-# Contributing
+## 🤝 Contributing
 
 Contributions, discussions, issue reports, and feature proposals are welcome.
 
 Please ensure that all contributions:
 
-* Follow the existing project architecture.
-* Include appropriate documentation.
-* Maintain thread safety.
-* Include tests where applicable.
+- Follow the existing project architecture
+- Include appropriate documentation
+- Maintain thread safety guarantees
+- Include tests where applicable
+
+> See [`CONTRIBUTING.md`](CONTRIBUTING.md) for detailed guidelines *(coming soon)*.
 
 ---
 
-# License
+## 📄 License
 
-This project is licensed under the Apache License 2.0.
+This project is licensed under the **Apache License 2.0**.
 
-See the `LICENSE` file for details.
+See the [`LICENSE`](LICENSE) file for full details.
 
 ---
 
-# Acknowledgements
+## 🙏 Acknowledgements
 
-Aegis is inspired by decades of research in distributed systems, operating systems, high-performance computing, and modern AI infrastructure.
+Aegis is inspired by decades of research in distributed systems, operating systems, high-performance computing, and modern AI infrastructure. The project explores how deterministic scheduling can be augmented with machine learning and retrieval-based intelligence to improve the usability, transparency, and efficiency of future compute platforms.
 
-The project aims to explore how deterministic scheduling can be augmented with machine learning and retrieval-based intelligence to improve the usability, transparency, and efficiency of future compute platforms.
+---
+
+<div align="center">
+
+**Built with 🦀 Rust and 🐍 Python**
+
+*Deterministic scheduling, augmented by intelligence.*
+
+</div>
