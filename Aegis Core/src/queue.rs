@@ -19,6 +19,11 @@ impl QueueManager {
         queue.push_back(job);
     }
 
+    pub fn dequeue(&self) -> Option<Job> {
+        let mut queue = self.inner.lock().unwrap();
+        queue.pop_front()
+    }
+
     pub fn len(&self) -> usize{
         let queue=self.inner.lock().unwrap();
         queue.len()

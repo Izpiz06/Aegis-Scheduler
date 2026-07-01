@@ -5,4 +5,6 @@ edition = "2024"
 
 [dependencies]
 serde = { version = "1.0.228", features = ["derive"] }
-tokio = { version = "1.52.3", features = ["rt", "rt-multi-thread", "macros"] }
+tokio = { version = "1.52.3", features = ["full"] }
+sqlx = { version = "0.7.0", features = ["runtime-tokio-rustls", "postgres", "uuid", "time"] }
+dotenvy = "0.15"
