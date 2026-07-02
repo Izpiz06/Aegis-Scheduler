@@ -20,48 +20,44 @@ impl ExecutorEngine {
         println!("Executor Engine listening for workloads...");
 
         loop {
-            // 1. Check if there is a job waiting at the front of the queue
             if let Some(front_job) = self.queue.peek() {
+                // 1. Try to allocate atomically (Fixes TOCTOU)
+                if self.resources.try_allocate(front_job.resources.cpu_cores, front_job.resources.memory_mb).is_ok() {
 
-                // 2. Check if we have enough hardware capacity
-                if self.resources.has_capacity(front_job.required_cores, front_job.required_memory_mb) {
-
-                    // 3. Dequeue and Allocate!
+                    // 2. We got the resources! Safely dequeue and start the job.
                     let mut active_job = self.queue.dequeue().unwrap();
-                    let _ = self.resources.allocate(active_job.required_cores, active_job.required_memory_mb);
-                    active_job.status = JobStatus::Running;
+                    active_job.start(); // <-- Using our new safe state transition!
 
-                    println!("Launching Job ID: {} (Command: {})", active_job.id, active_job.command);
+                    println!("🚀 Launching Job ID: {} (Command: {})", active_job.id, active_job.command);
                     self.resources.print_status();
 
-                    // 4. Clone the resources reference so the background task can use it later
                     let resources_ref = self.resources.clone();
 
-                    // 5. Spawn an async OS process in the background.
-                    // This lets the loop immediately continue to check the queue for the NEXT job!
                     tokio::spawn(async move {
                         let process = Command::new(&active_job.command)
                             .args(&active_job.args)
-                            .output() // This awaits the actual OS command finishing
+                            .output()
                             .await;
 
                         match process {
                             Ok(output) => {
-                                println!("✅ Job {} Completed! Exit Code: {:?}", active_job.id, output.status.code());
+                                let code = output.status.code().unwrap_or(1);
+                                active_job.complete(code); // <-- Safe completion tracking
+                                println!("✅ Job {} {:?}! Exit Code: {}", active_job.id, active_job.status, code);
                             }
                             Err(e) => {
+                                active_job.complete(1);
                                 println!("❌ Job {} Failed to execute: {}", active_job.id, e);
                             }
                         }
 
-                        // 6. Release resources back to the cluster when the OS command finishes
-                        resources_ref.release(active_job.required_cores, active_job.required_memory_mb);
-                        println!("♻Resources freed for Job {}.", active_job.id);
+                        // Release resources back to the pool
+                        resources_ref.release(active_job.resources.cpu_cores, active_job.resources.memory_mb);
+                        println!("Resources freed for Job {}.", active_job.id);
                     });
                 }
             }
 
-            // Sleep for 500ms to prevent the loop from maxing out your CPU
             sleep(Duration::from_millis(500)).await;
         }
     }
