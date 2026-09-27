@@ -7,4 +7,5 @@ include_directories(src/Job)
 
 add_executable(Aegis_Scheduler
         src/Job/job.cpp
-        src/Job/job.h)
+        src/Job/job.h
+        main.cpp)
