@@ -1,4 +1,4 @@
-**# Aegis Design Decisions
+# Aegis Design Decisions
 
 This document records why important architectural decisions are made.
 
@@ -102,17 +102,24 @@ Aegis should remain understandable to someone familiar with HPC systems.
 
 ---
 
-## Decision Template
+## Decision 009 — Node and Resource separation
 
-Future decisions should use:
+**Decision**
 
-```text
-Decision:
-Date:
-Context:
-Options considered:
-Decision:
-Reason:
-Consequences:
-```
-**
+Nodes own Resource instances rather than hardcoding flat allocation variables inside Node or Scheduler.
+
+**Reason**
+
+Allows compute nodes to manage multiple consumable dimensions (CPUs, Memory, future GPUs) cleanly and independently validate capacity without coupling to scheduling policy.
+
+---
+
+## Decision 010 — POSIX process execution and automatic resource reclamation
+
+**Decision**
+
+The execution engine uses fork/execvp and synchronously monitors process termination via waitpid, immediately reclaiming node allocations upon job completion or failure.
+
+**Reason**
+
+Provides realistic OS-level workload execution for V0 while preventing resource leaks across job lifecycles.

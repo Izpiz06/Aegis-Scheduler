@@ -8,141 +8,55 @@ The scheduler answers:
 
 ---
 
-# 2. Basic Scheduling Loop
+## 2. Job Queue (`JobQueue`)
 
-The conceptual loop is:
+The `JobQueue` holds submitted jobs waiting for scheduling evaluation:
 
-```text
-          ┌──────────────────┐
-          │  Waiting Jobs    │
-          └────────┬─────────┘
-                   │
-                   ▼
-          ┌──────────────────┐
-          │ Scheduling Policy│
-          └────────┬─────────┘
-                   │
-                   ▼
-          ┌──────────────────┐
-          │ Resource Check   │
-          └────────┬─────────┘
-                   │
-             Can it run?
-              /       \
-            YES        NO
-             │          │
-             ▼          ▼
-        Allocate      Remain
-        Resources     Pending
-             │
-             ▼
-          Execute
-```
+* **Priority-Aware Ordering**: Workloads with higher priority integer values are placed ahead of lower-priority jobs.
+* **Stable FIFO Preservation**: For jobs of equal priority, submission order is strictly preserved.
+* **Direct Inspection & Removal**: Supports queue iteration, peek, pop, and removal by job ID (e.g. for cancellation).
 
 ---
 
-# 3. Scheduling Policy
+## 3. V0 Scheduling Loop (`Scheduler`)
 
-The policy determines how waiting jobs are ordered.
-
-Possible policies include:
+The V0 scheduler implements a First-Fit scheduling policy over priority-ordered pending jobs:
 
 ```text
-FIFO
-Priority
-Shortest Job First
-Fair Share
-Backfilling
+               ┌──────────────────┐
+               │    JobQueue      │
+               └────────┬─────────┘
+                        │
+                  (Priority Pop)
+                        │
+                        ▼
+               ┌──────────────────┐
+               │    Scheduler     │
+               └────────┬─────────┘
+                        │
+               Scan Registered Nodes
+                        │
+                  Can Node Fit?
+                   /         \
+                 YES          NO
+                  │            │
+                  ▼            ▼
+             Allocate     Remain in Queue
+             Resources    (Next Cycle)
+                  │
+                  ▼
+             Job State -> RUNNING
+                  │
+                  ▼
+             Return Allocation(Job, Node)
 ```
 
-Production schedulers can have substantially more sophisticated policies. Slurm, for example, considers priority and resource availability during scheduling and may use backfill scheduling.
-
-V0 does not need to reproduce production scheduling complexity.
-
----
-
-# 4. Resource Selection
-
-After deciding which job to consider, the scheduler must determine whether its requested resources can be allocated.
-
-Conceptually:
-
-```text
-Job Request
-     │
-     ▼
-Available Resources
-     │
-     ├── insufficient → remain pending
-     │
-     └── sufficient → allocate
-```
-
-In Slurm, resource selection is an explicit subsystem responsible for selecting and allocating resources.
-
----
-
-# 5. Queue
-
-A queue is conceptually a collection of jobs waiting for scheduling.
-
-Do not assume that a queue must automatically imply a complicated database or distributed system.
-
-For V0:
-
-```text
-Submit
-  ↓
-Queue
-  ↓
-Scheduler
-```
-
-is sufficient as a conceptual model.
-
----
-
-# 6. Priority
-
-Priority is a separate concept from resource availability.
-
-A job can have high priority but still be unable to run if its requested resources are unavailable.
-
-HTCondor similarly evaluates job requirements against machine availability and ranking preferences.
-
----
-
-# 7. Future Scheduling
-
-As Aegis grows, scheduling may incorporate:
-
-```text
-Multiple nodes
-CPU topology
-GPU topology
-Network topology
-Job dependencies
-Reservations
-Preemption
-Fairness
-Backfilling
-Historical workload information
-```
-
-These should be introduced incrementally.
-
----
-
-# 8. V0 Goal
-
-The first scheduler should answer only the fundamental questions:
-
-```text
-What jobs are waiting?
-Which job should be considered?
-Does it fit?
-Which resources are available?
-Can it start?
-```
-
-Everything beyond this is an extension.
+### Steps in `schedule_cycle()`:
+1. Inspect pending jobs in priority order.
+2. For each idle job, search registered compute nodes for the first node satisfying `node->can_fit(*job)`.
+3. If a suitable node is found:
+   * Allocate resources on node (`node->allocate(*job)`).
+   * Transition job lifecycle state to `RUNNING` (`job->mark_running()`).
+   * Record `Allocation{job, node}`.
+   * Remove job from the pending queue.
+4. If no node satisfies the request, the job remains in the queue for subsequent scheduling cycles.

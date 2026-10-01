@@ -1,74 +1,48 @@
-# Aegis Node Model
+# Aegis Node & Resource Model
 
 ## 1. Purpose
 
-A node represents a machine capable of executing jobs.
+A node represents a compute entity capable of executing jobs. Compute nodes own resources (CPUs and memory) and maintain an operational state.
 
 ---
 
-# 2. Basic Node Information
+## 2. Resource Model (`Resource`)
 
-A node can conceptually contain:
+The `Resource` component tracks compute capacity and allocations:
+
+```text
+Resource
+ ├── total_cpus
+ ├── available_cpus
+ ├── total_memory (MB)
+ └── available_memory (MB)
+```
+
+### Invariants & Validation
+
+1. **Over-allocation Prevention**: `allocate(cpus, memory)` verifies `available_cpus >= cpus` and `available_memory >= memory` before committing resources.
+2. **Release Validation**: `release(cpus, memory)` prevents reclaiming more resources than total capacity (`available + released <= total`).
+
+---
+
+## 3. Node Model (`Node`)
+
+A node owns a `Resource` instance, maintains an operational state, and enforces node-level availability:
 
 ```text
 Node
- ├── Identity
- ├── CPU capacity
- ├── Memory capacity
- ├── State
- └── Allocations
+ ├── ID / Name
+ ├── State (READY, DRAINING, DOWN)
+ └── Resource (CPU + Memory capacity)
 ```
 
-Production HPC schedulers maintain additional information such as processor topology, memory, temporary disk, features and node state.
+### Node States
 
----
+* `READY`: Healthy and actively accepting workload allocations.
+* `DRAINING`: Completing running workloads; rejecting new allocations (maintenance mode).
+* `DOWN`: Offline or faulty; cannot host allocations.
 
-# 3. Node State
+### Separation of Responsibilities
 
-A node may eventually have states such as:
-
-```text
-AVAILABLE
-BUSY
-DOWN
-DRAINING
-DRAINED
-```
-
-The exact Aegis state set should be determined by actual requirements.
-
----
-
-# 4. Node and Resource Separation
-
-A node is not necessarily the same thing as a resource.
-
-For example:
-
-```text
-Node
- ├── CPU resources
- ├── Memory resources
- └── GPU resources
-```
-
-This distinction becomes important when multiple jobs share a node.
-
-Slurm's resource-selection system explicitly tracks resources within nodes rather than treating every allocation as an entire machine.
-
----
-
-# 5. V0
-
-For single-node CPU scheduling, the node model can remain minimal.
-
-The scheduler primarily needs to know:
-
-```text
-Node identity
-Total CPU capacity
-Available CPU capacity
-Node state
-```
-
-Additional topology and hardware information can be introduced when needed.
+* **Node Role**: The node verifies fit (`can_fit(job)`) and performs allocation/release accounting on its owned `Resource`.
+* **Scheduler Role**: The node does **not** decide which job gets scheduled. All arbitration and job selection decisions remain exclusively in the `Scheduler`.
