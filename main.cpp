@@ -1,69 +1,110 @@
-#include "src/Job/job.h"
-#include "src/Job/job_state.h"
+#include "job.h"
+#include "job_state.h"
+#include "resource.h"
+#include "node.h"
+#include "job_queue.h"
+#include "scheduler.h"
+#include "executor.h"
+
 #include <iostream>
+#include <memory>
 #include <vector>
 
-void print_job_info(const Job& job) {
-    std::cout << "[Job " << job.get_id() << "] "
-              << "Owner: " << job.get_owner() << " | "
-              << "State: " << to_string(job.get_state()) << " | "
-              << "Exec: " << job.get_executable() << " | "
-              << "CPUs: " << job.get_requested_cpus() << " | "
-              << "Memory: " << job.get_requested_memory() << "MB\n";
+void print_cluster_state(const Scheduler& scheduler, const JobQueue& queue) {
+    std::cout << "\n--- Cluster Status ---\n";
+    std::cout << "Nodes:\n";
+    for (const auto& node : scheduler.get_nodes()) {
+        std::cout << "  " << node->to_string_summary() << "\n";
+    }
+    std::cout << "Pending Queue (" << queue.size() << " jobs):\n";
+    for (const auto& job : queue.get_jobs()) {
+        std::cout << "  [Job " << job->get_id() << "] "
+                  << "Owner: " << job->get_owner() << " | "
+                  << "Priority: " << job->get_priority() << " | "
+                  << "CPUs: " << job->get_requested_cpus() << " | "
+                  << "Memory: " << job->get_requested_memory() << "MB | "
+                  << "Exec: " << job->get_executable() << " | "
+                  << "State: " << to_string(job->get_state()) << "\n";
+    }
+    std::cout << "----------------------\n\n";
 }
 
 int main() {
-    std::cout << "===========================================\n";
-    std::cout << "  Aegis Scheduler - Job Lifecycle Demo     \n";
-    std::cout << "===========================================\n\n";
+    std::cout << "=========================================================\n";
+    std::cout << "        Aegis Scheduler V0 End-to-End Demonstration       \n";
+    std::cout << "=========================================================\n";
 
-    // Scenario 1: Standard successful job lifecycle (HTCondor: Submit -> Match/Execute -> Exit 0)
-    std::cout << "-- Scenario 1: Successful Job Lifecycle --\n";
-    Job job1(1, "izaaan", "/bin/sleep", {"10"}, 2, 1024, 10);
-    print_job_info(job1);
+    // 1. Initialize Compute Nodes (Phases 1 & 2: Resource & Node Models)
+    auto node1 = std::make_shared<Node>(1, "compute-node-01", 4, 8192); // 4 CPUs, 8GB RAM
+    auto node2 = std::make_shared<Node>(2, "compute-node-02", 2, 4096); // 2 CPUs, 4GB RAM
 
-    std::cout << "Action: Dispatching job to execution agent...\n";
-    job1.mark_running();
-    print_job_info(job1);
+    Scheduler scheduler;
+    scheduler.add_node(node1);
+    scheduler.add_node(node2);
 
-    std::cout << "Action: Job process exited cleanly with code 0...\n";
-    job1.mark_completed();
-    print_job_info(job1);
+    // 2. Initialize Job Queue and Submit Workloads (Phase 3: Priority Job Queue)
+    JobQueue queue;
 
-    std::cout << "Action: Attempting invalid transition (RUNNING on COMPLETED job)...\n";
-    bool invalid_attempt = job1.mark_running();
-    std::cout << "Transition accepted: " << (invalid_attempt ? "YES" : "NO (Rejected: Terminal State)") << "\n\n";
+    // Job 1: Normal priority echo workload
+    auto job1 = std::make_shared<Job>(
+        1, "izaaan", "/bin/echo", std::vector<std::string>{"[Job 1] Aegis HPC task running successfully"}, 2, 2048, 10
+    );
 
-    // Scenario 2: Administrative hold, release, and execution failure
-    std::cout << "-- Scenario 2: Hold, Release, and Failure --\n";
-    Job job2(2, "alice", "/usr/bin/compute_sim", {"--grid", "256"}, 8, 4096, 20);
-    print_job_info(job2);
+    // Job 2: High priority sleep workload
+    auto job2 = std::make_shared<Job>(
+        2, "alice", "/bin/sleep", std::vector<std::string>{"1"}, 2, 4096, 50
+    );
 
-    std::cout << "Action: Putting job on administrative hold (e.g., policy check)...\n";
-    job2.hold();
-    print_job_info(job2);
+    // Job 3: Low priority failing workload (non-zero exit code)
+    auto job3 = std::make_shared<Job>(
+        3, "bob", "/bin/false", std::vector<std::string>{}, 1, 1024, 5
+    );
 
-    std::cout << "Action: Releasing job back to queue...\n";
-    job2.release();
-    print_job_info(job2);
+    // Job 4: Large workload exceeding single node capacity (requires 8 CPUs)
+    auto job4 = std::make_shared<Job>(
+        4, "carol", "/bin/echo", std::vector<std::string>{"[Job 4] Large task"}, 8, 16384, 100
+    );
 
-    std::cout << "Action: Dispatching job...\n";
-    job2.mark_running();
-    print_job_info(job2);
+    std::cout << "Submitting jobs to queue...\n";
+    queue.submit(job1);
+    queue.submit(job2);
+    queue.submit(job3);
+    queue.submit(job4);
 
-    std::cout << "Action: Execution crashed / non-zero exit...\n";
-    job2.mark_failed();
-    print_job_info(job2);
-    std::cout << "\n";
+    print_cluster_state(scheduler, queue);
 
-    // Scenario 3: User cancellation while queued
-    std::cout << "-- Scenario 3: Job Cancellation in Queue --\n";
-    Job job3(3, "bob", "/bin/render", {"scene.blend"}, 4, 2048, 5);
-    print_job_info(job3);
+    // 3. Scheduling Cycle (Phase 4: First-Fit Scheduler)
+    std::cout << "Running Scheduler Cycle...\n";
+    auto allocations = scheduler.schedule_cycle(queue);
+    std::cout << "Allocations made: " << allocations.size() << "\n";
 
-    std::cout << "Action: User requested job removal (condor_rm / scancel)...\n";
-    job3.cancel();
-    print_job_info(job3);
+    for (const auto& alloc : allocations) {
+        std::cout << "  -> Matched [Job " << alloc.job->get_id() << "] "
+                  << "with [" << alloc.node->get_name() << "]\n";
+    }
+
+    print_cluster_state(scheduler, queue);
+
+    // 4. Execution Engine (Phase 5: Process Execution and Resource Reclamation)
+    std::cout << "Executing Scheduled Workloads...\n";
+    Executor executor;
+
+    for (const auto& alloc : allocations) {
+        std::cout << "\nExecuting [Job " << alloc.job->get_id() << "] ("
+                  << alloc.job->get_executable() << ") on "
+                  << alloc.node->get_name() << "...\n";
+
+        ExecutionResult result = executor.execute(alloc);
+
+        std::cout << "  Execution Result: "
+                  << (result.success ? "SUCCESS" : "FAILED")
+                  << " (Exit Code: " << result.exit_code << ")\n"
+                  << "  Status Message: " << result.message << "\n"
+                  << "  Job Final State: " << to_string(alloc.job->get_state()) << "\n";
+    }
+
+    std::cout << "\nPost-Execution Cluster State (verifying resource reclamation):\n";
+    print_cluster_state(scheduler, queue);
 
     return 0;
 }

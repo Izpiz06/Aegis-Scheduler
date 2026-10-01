@@ -4,7 +4,7 @@ project(Aegis_Scheduler)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include_directories(src/Job src/Resource src/Node src/Queue src/Scheduler)
+include_directories(src/Job src/Resource src/Node src/Queue src/Scheduler src/Execution)
 
 add_executable(Aegis_Scheduler
         src/Job/job_state.h
@@ -21,4 +21,6 @@ add_executable(Aegis_Scheduler
         src/Queue/job_queue.cpp
         src/Scheduler/scheduler.h
         src/Scheduler/scheduler.cpp
+        src/Execution/executor.h
+        src/Execution/executor.cpp
         main.cpp)
